@@ -1,11 +1,4 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- */
-'use strict';
+import React from 'react-native';
+import SwiperExample from './SwiperExample';
 
-import Examples from './src/examples'
-
-import React, { AppRegistry } from 'react-native'
-
-AppRegistry.registerComponent('examples', () => Examples);
+React.AppRegistry.registerComponent('swiper', () => SwiperExample);
