@@ -1,17 +1,24 @@
-'use strict'
-
 import React, {
   Component,
   StyleSheet,
   View,
-} from 'react-native'
+} from 'react-native';
 
-import Dot from './dot'
+import Dot from './dot';
+
+const styles = StyleSheet.create({
+  dots: {
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+});
 
 export default class Dots extends Component {
   static propTypes = {
-    total: React.PropTypes.number,
-    active: React.PropTypes.number,
+    total: React.PropTypes.number.isRequired,
+    active: React.PropTypes.number.isRequired,
     style: View.propTypes.style,
   };
 
@@ -21,30 +28,15 @@ export default class Dots extends Component {
   };
 
   render() {
-    const { total, active } = this.props
-
-    const range = Array.from(new Array(total), (x, i) => i)
+    const { total, active, color, activeColor } = this.props;
+    const range = Array.from(new Array(total), (x, i) => i);
 
     return (
       <View style={[styles.dots, this.props.style]}>
-       { range.map(i => {
-          return (
-            <Dot
-              key={ i }
-              color={ i === active ? this.props.activeColor : this.props.color }
-            />
-          )
-        })}
+        {range.map(i =>
+          <Dot key={i} color={i === active ? activeColor : color}/>
+        )}
       </View>
-    )
+    );
   }
 }
-
-const styles = StyleSheet.create({
-  dots: {
-    backgroundColor: 'rgba(0, 0, 0, 0)',
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  }
-})
