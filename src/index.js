@@ -33,13 +33,11 @@ export default class Swiper extends Component {
     index: 0,
     pager: true,
     onPageChange: () => {},
-    activeDotColor: 'blue',
   };
 
   componentWillMount() {
-    const release = (e, gestureState) => {
-      const relativeGestureDistance = gestureState.dx / this.state.viewWidth;
-      const { vx } = gestureState;
+    const release = (e, {vx, dx}) => {
+      const relativeGestureDistance = dx / this.state.viewWidth;
 
       let newIndex = this.state.index;
 
@@ -54,16 +52,26 @@ export default class Swiper extends Component {
 
     this._panResponder = PanResponder.create({
       // Claim responder if it's a horizontal pan
-      onMoveShouldSetPanResponder: (e, gestureState) =>
-        Math.abs(gestureState.dx) > Math.abs(gestureState.dy),
+      onMoveShouldSetPanResponder: (e, {dx, dy}) => {
+        const length = React.Children.count(this.props.children) - 1;
+
+        if (this.state.index === length && dx < 0) {
+          return false;
+        }
+
+        if (this.state.index === 0 && dx > 0) {
+          return false;
+        }
+
+        return Math.abs(dx) > Math.abs(dy);
+      },
 
       // Touch is released, scroll to the one that you're closest to
       onPanResponderRelease: release,
       onPanResponderTerminate: release,
 
       // Dragging, move the view with the touch
-      onPanResponderMove: (e, gestureState) => {
-        let dx = gestureState.dx;
+      onPanResponderMove: (e, {dx}) => {
         let offsetX = -dx / this.state.viewWidth + this.state.index;
 
         this.state.scrollValue.setValue(offsetX);
@@ -72,20 +80,18 @@ export default class Swiper extends Component {
   }
 
   goToPage(pageNumber) {
-    const lastPage = Math.min(pageNumber, this.props.children.length - 1);
-    const nextPage = Math.max(0, lastPage);
+    let index = Math.min(pageNumber, this.props.children.length - 1);
+    index = Math.max(0, index);
 
-    this.setState({
-      index: nextPage,
-    });
+    this.setState({index});
 
     Animated.spring(this.state.scrollValue, {
-      toValue: nextPage,
+      toValue: index,
       friction: this.props.springFriction,
       tension: this.props.springTension,
     }).start();
 
-    this.props.onPageChange(nextPage);
+    this.props.onPageChange(index);
   }
 
   handleLayout(event) {
@@ -96,10 +102,13 @@ export default class Swiper extends Component {
     }
   }
 
-  render() {
-    const applyPageStyle = (el) =>
-      React.cloneElement(el, {style: [el.props.style, styles.page]});
+  buildCurrentStack() {
+    return React.Children.map(this.props.children, (el, i) =>
+      React.cloneElement(el, {key: i, style: [el.props.style, styles.page]})
+    );
+  }
 
+  render() {
     const translateX = this.state.scrollValue.interpolate({
       inputRange: [0, 1],
       outputRange: [0, -this.state.viewWidth],
@@ -111,25 +120,22 @@ export default class Swiper extends Component {
       flexDirection: 'row',
     };
 
-    const page = (
-      <Animated.View
-        {...this._panResponder.panHandlers}
-        style={[sceneContainerStyle, {transform: [{translateX}]}]}>
-        {React.Children.map(this.props.children, applyPageStyle)}
-      </Animated.View>
-    );
-
     const dots = this.props.pager ? (
       <Dots
-        active={ this.state.index }
-        activeColor={ this.props.activeDotColor }
-        total={ this.props.children.length }
+        active={this.state.index}
+        activeColor={this.props.activeDotColor}
+        total={this.props.children.length}
         style={[styles.dots, {width: this.state.viewWidth}]} />
     ) : null;
 
     return (
       <View style={styles.page} onLayout={() => this.handleLayout}>
-        {page}{dots}
+        <Animated.View
+          {...this._panResponder.panHandlers}
+          style={[sceneContainerStyle, {transform: [{translateX}]}]}>
+          {this.buildCurrentStack()}
+        </Animated.View>
+        {dots}
       </View>
     );
   }
