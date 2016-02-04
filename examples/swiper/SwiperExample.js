@@ -4,7 +4,7 @@ import Swiper from 'react-native-page-swiper'
 export default class SwiperExample extends Component {
   render() {
     return (
-      <Swiper style={styles.wrapper}>
+      <Swiper springFriction={5} springTension={0}>
         <View style={styles.slide1}>
           <Text style={styles.text}>Hello Swiper</Text>
         </View>
@@ -21,9 +21,6 @@ export default class SwiperExample extends Component {
   }
 }
 const styles = StyleSheet.create({
-  wrapper: {
-  },
-
   slide1: {
     justifyContent: 'center',
     alignItems: 'center',

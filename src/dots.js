@@ -25,6 +25,8 @@ export default class Dots extends Component {
   static defaultProps = {
     total: 0,
     active: -1,
+    color: 'rgba(255, 255, 255, .3)',
+    activeColor: '#FFFFFF',
   };
 
   render() {
@@ -34,7 +36,9 @@ export default class Dots extends Component {
     return (
       <View style={[styles.dots, this.props.style]}>
         {range.map(i =>
-          <Dot key={i} color={i === active ? activeColor : color}/>
+          <Dot key={i} style={{
+            backgroundColor: i === active ? activeColor : color,
+          }}/>
         )}
       </View>
     );
