@@ -11,7 +11,7 @@ import Dots from './dots';
 
 const styles = StyleSheet.create({
   page: {flex: 1, overflow: 'hidden'},
-  dots: {position: 'absolute', bottom: 50},
+  dots: {position: 'absolute', bottom: 80},
 });
 
 export default class Swiper extends Component {
